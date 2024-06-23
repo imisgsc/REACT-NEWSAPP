@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './components/Navbar';
-import NewsBoard from './components/NewsBoard';
-import './App.css';
+import Navbar from './Components/Navbar';
+import NewsBoard from './Components/NewsBoard';
+import './app.css';
 
 const API_KEY = '2c971674a16f433c8e0ae8dcc43bcb4e';
-const NEWS_API_URL = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${API_KEY}`;
+const NEWS_API_URL = `https://newsapi.org/v2/top-headlines?sources=google-news&apiKey=${API_KEY}`;
 
 const App = () => {
   const [news, setNews] = useState([]);
@@ -23,8 +23,15 @@ const App = () => {
       }
     };
 
+    // Fetch news initially
     fetchNews();
-  }, []);
+
+    // Set up interval to fetch news every 30 seconds
+    const intervalId = setInterval(fetchNews, 30000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []); // Empty dependency array ensures this effect runs only once
 
   return (
     <div>
