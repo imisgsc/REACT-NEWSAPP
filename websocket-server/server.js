@@ -1,26 +1,30 @@
 const WebSocket = require('ws');
+const fetch = require('node-fetch');
 
 const wss = new WebSocket.Server({ port: 8080 });
 
-wss.on('connection', (ws) => {
+const NEWS_API_URL = 'https://newsapi.org/v2/top-headlines';
+const API_KEY = '2c971674a16f433c8e0ae8dcc43bcb4e';
+
+wss.on('connection', async (ws) => {
   console.log('Client connected');
 
-  const sendLiveUpdate = () => {
-    // Generate random news content for demonstration
-    const news = [
-      { title: 'Breaking News 1', description: 'Update at 12:25:19 pm' },
-      { title: 'Breaking News 2', description: 'Update at 12:30:00 pm' },
-      { title: 'Breaking News 3', description: 'Update at 12:35:30 pm' }
-    ];
+  const sendLiveUpdate = async () => {
+    try {
+      const response = await fetch(`${NEWS_API_URL}?country=us&apiKey=${API_KEY}`);
+      const data = await response.json();
 
-    // Randomly select a news item to send
-    const randomIndex = Math.floor(Math.random() * news.length);
-    const message = JSON.stringify(news[randomIndex]);
-
-    ws.send(message);
+      if (data.articles && data.articles.length > 0) {
+        const randomIndex = Math.floor(Math.random() * data.articles.length);
+        const { title, description } = data.articles[randomIndex];
+        const message = JSON.stringify({ title, description });
+        ws.send(message);
+      }
+    } catch (error) {
+      console.error('Error fetching news:', error.message);
+    }
   };
 
-  // Send updates every 5 seconds
   const intervalId = setInterval(sendLiveUpdate, 5000);
 
   ws.on('close', () => {
