@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './Components/Navbar';
-import NewsBoard from './Components/NewsBoard';
-import './app.css';
+import Navbar from './components/Navbar';
+import NewsBoard from './components/NewsBoard';
+import './App.css';
+
+const API_KEY = '2c971674a16f433c8e0ae8dcc43bcb4e';
+const NEWS_API_URL = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${API_KEY}`;
 
 const App = () => {
   const [news, setNews] = useState([]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080');
-
-    ws.onopen = () => {
-      console.log('Connected to WebSocket server');
+    const fetchNews = async () => {
+      try {
+        const response = await fetch(NEWS_API_URL);
+        if (!response.ok) {
+          throw new Error('Failed to fetch news');
+        }
+        const data = await response.json();
+        setNews(data.articles);
+      } catch (error) {
+        console.error('Error fetching news:', error.message);
+      }
     };
 
-    ws.onmessage = (event) => {
-      const newUpdate = JSON.parse(event.data);
-      setNews((prevNews) => [newUpdate, ...prevNews]);
-    };
-
-    ws.onclose = () => {
-      console.log('Disconnected from WebSocket server');
-    };
-
-    return () => {
-      ws.close();
-    };
+    fetchNews();
   }, []);
 
   return (
