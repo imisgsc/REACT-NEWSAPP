@@ -1,6 +1,6 @@
 import React from 'react'
 import Navbar from './Components/Navbar'
-import NewsBoard from './Components/NewBoard'
+import NewsBoard from './Components/NewsBoard'
 import NewsItem from './Components/NewsItem'
 
 const App = () => {
